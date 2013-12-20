@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.hostname = "mesos-base"
+  config.vm.box      = "raring64"
+  config.vm.box_url  = "http://cloud-images.ubuntu.com/vagrant/raring/current/raring-server-cloudimg-amd64-vagrant-disk1.box"
+
+  config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--memory", 512]
+    v.customize ["modifyvm", :id, "--cpus", 4]
+  end
+
+  config.vm.provision "shell",
+    inline: 'apt-get update && apt-get install -y language-pack-en'
+  config.vm.provision "shell",
+    inline: 'curl -fL https://raw.github.com/mesosphere/mesos-docker/master/bin/mesos-docker-setup | sudo bash'
+  config.vm.provision "shell",
+    inline: 'echo limit nofile 65536 65536 >> /etc/init/docker.conf'
+  config.vm.provision "shell",
+    inline: 'echo DOCKER_OPTS=\"-dns 10.0.3.1 \${DOCKER_OPTS}\" >> /etc/default/docker'
+  config.vm.provision "shell",
+    inline: 'service docker restart'
+  config.vm.provision "shell",
+    inline: 'docker pull arcus/elasticsearch && docker pull arcus/kibana'
+  config.vm.provision "shell",
+    inline: 'docker build -t td-agent /vagrant/td-agent'
+  config.vm.provision "shell",
+    inline: 'docker build -t haproxy /vagrant/haproxy'
+end

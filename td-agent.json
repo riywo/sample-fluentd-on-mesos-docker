@@ -1,0 +1,12 @@
+{
+    "id": "td-agent",
+    "instances": "2",
+    "mem": "100",
+    "cpus": "1",
+    "executor": "/var/lib/mesos/executors/docker",
+    "cmd": "td-agent",
+    "env": {
+        "ES_PORT": "9200",
+        "ES_HOST": "mesos-master"
+    }
+}
